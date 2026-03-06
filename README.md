@@ -31,6 +31,19 @@
 
 ---
 
+## ✝️ 基督教价值观朝廷模式（可一键升级）
+
+本仓库已提供 Christian Court 升级脚本，可在 Linux 服务器上将原版朝廷模式升级为“基督教价值观下的多 Agent 个人助理”。
+
+```bash
+bash ./upgrade_christian_court.sh
+```
+
+脚本支持 **CLI 交互式录入 Discord Bot Token**（可逐个账号输入、回车保留现值、`-` 清空），并自动写回配置文件。
+
+详见：[README_CHRISTIAN_COURT.md](./README_CHRISTIAN_COURT.md)
+
+---
 ## 技术架构
 
 ```

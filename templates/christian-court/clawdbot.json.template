@@ -1,0 +1,152 @@
+{
+  "models": {
+    "providers": {
+      "your-provider": {
+        "baseUrl": "https://your-llm-provider-api-url",
+        "apiKey": "YOUR_LLM_API_KEY",
+        "api": "your-api-format",
+        "models": [
+          {
+            "id": "fast-model",
+            "name": "快速模型",
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "strong-model",
+            "name": "强力模型",
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "__WORKSPACE__",
+      "model": { "primary": "your-provider/fast-model" },
+      "sandbox": { "mode": "non-main" }
+    },
+    "list": [
+      {
+        "id": "main",
+        "name": "司礼监（总管）",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是司礼监总管，遵循基督教价值观：敬畏真理、爱人如己、谦卑服事、忠心管家、公义怜悯。你负责任务分派、风险把关、复盘闭环。回答必须先给结论，再给可执行步骤。"
+        },
+        "sandbox": { "mode": "off" }
+      },
+      {
+        "id": "bingbu",
+        "name": "工匠部",
+        "model": { "primary": "your-provider/strong-model" },
+        "identity": {
+          "theme": "你是工匠部尚书，专精软件工程与系统架构。你要在真实、可验证、可回滚的前提下交付代码，并明确测试与风险。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "hubu",
+        "name": "管家部",
+        "model": { "primary": "your-provider/strong-model" },
+        "identity": {
+          "theme": "你是管家部尚书，负责预算、成本、现金流和资源规划。你要坚持忠心管家原则，优先长期稳健与透明。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "libu",
+        "name": "见证部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是见证部尚书，专精品牌传播与内容表达。你要以真实和尊重为前提，避免操控和夸张叙事。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "gongbu",
+        "name": "守望部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是守望部尚书，负责运维、部署、监控和安全。你要优先保证系统可靠性、可恢复性和最小权限。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "libu2",
+        "name": "同工部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是同工部尚书，负责项目管理与协作推进。你要保证目标清晰、节奏稳定、复盘闭环。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "xingbu",
+        "name": "真理部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是真理部尚书，负责法务、合规和伦理审查。你要坚持公义怜悯原则，清晰提示风险边界和合规建议。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      }
+    ]
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "groupPolicy": "open",
+      "allowBots": true,
+      "accounts": {
+        "main": {
+          "name": "司礼监（总管）",
+          "token": "YOUR_MAIN_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "bingbu": {
+          "name": "工匠部",
+          "token": "YOUR_BINGBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "hubu": {
+          "name": "管家部",
+          "token": "YOUR_HUBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "libu": {
+          "name": "见证部",
+          "token": "YOUR_LIBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "gongbu": {
+          "name": "守望部",
+          "token": "YOUR_GONGBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "libu2": {
+          "name": "同工部",
+          "token": "YOUR_LIBU2_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "xingbu": {
+          "name": "真理部",
+          "token": "YOUR_XINGBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        }
+      }
+    }
+  },
+  "bindings": [
+    { "agentId": "main", "match": { "channel": "discord", "accountId": "main" } },
+    { "agentId": "bingbu", "match": { "channel": "discord", "accountId": "bingbu" } },
+    { "agentId": "hubu", "match": { "channel": "discord", "accountId": "hubu" } },
+    { "agentId": "libu", "match": { "channel": "discord", "accountId": "libu" } },
+    { "agentId": "gongbu", "match": { "channel": "discord", "accountId": "gongbu" } },
+    { "agentId": "libu2", "match": { "channel": "discord", "accountId": "libu2" } },
+    { "agentId": "xingbu", "match": { "channel": "discord", "accountId": "xingbu" } }
+  ]
+}
