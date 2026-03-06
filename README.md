@@ -39,6 +39,12 @@
 bash ./upgrade_christian_court.sh
 ```
 
+也可以直接单脚本升级：
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/zYamro/boluobobo-ai-court-tutorial/main/upgrade_christian_court.sh)
+```
+
 脚本支持 **CLI 交互式录入 Discord Bot Token**（可逐个账号输入、回车保留现值、`-` 清空），并自动写回配置文件。
 
 详见：[README_CHRISTIAN_COURT.md](./README_CHRISTIAN_COURT.md)

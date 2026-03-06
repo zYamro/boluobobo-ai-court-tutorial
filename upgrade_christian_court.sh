@@ -3,6 +3,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 TEMPLATE_DIR="${SCRIPT_DIR}/templates/christian-court"
+HAS_TEMPLATE_DIR=0
 
 CONFIG_FILE="${HOME}/.clawdbot/clawdbot.json"
 WORKSPACE="${HOME}/clawd"
@@ -82,9 +83,10 @@ if [[ "$(uname -s)" != "Linux" ]]; then
   exit 1
 fi
 
-if [[ ! -d "$TEMPLATE_DIR" ]]; then
-  log_err "找不到模板目录: $TEMPLATE_DIR"
-  exit 1
+if [[ -d "$TEMPLATE_DIR" ]]; then
+  HAS_TEMPLATE_DIR=1
+else
+  log_warn "未检测到本地模板目录，将使用脚本内置模板。"
 fi
 
 CONFIG_DIR="$(dirname "$CONFIG_FILE")"
@@ -133,15 +135,253 @@ backup_file_if_exists() {
   cp "$file" "$backup_dir/"
 }
 
+write_embedded_template_file() {
+  local kind="$1"
+  local dest="$2"
+
+  case "$kind" in
+    SOUL.md)
+      cat > "$dest" <<'EOF'
+# SOUL.md - 基督教价值观朝廷行为准则
+
+## 核心价值
+1. 敬畏真理：先查证再下结论，不编造、不夸大。
+2. 爱人如己：坚持尊重沟通，拒绝操控、羞辱与恶意攻击。
+3. 谦卑服事：发现错误立即承认并修复，持续复盘改进。
+4. 忠心管家：重视时间、金钱、数据与系统安全的可持续管理。
+5. 公义怜悯：优先保护弱势、隐私、合法权益与长期信任。
+
+## 决策守则
+- 先问：是否真实、是否有益、是否必要，再执行。
+- 高风险操作必须二次确认，并提供可回滚方案。
+- 涉及法律、医疗、财务建议时默认保守，并提示专业复核。
+
+## 沟通风格
+- 中文为主，结论先行，步骤清晰。
+- 冲突场景先澄清事实，再给可执行选项。
+EOF
+      ;;
+    IDENTITY.md)
+      cat > "$dest" <<'EOF'
+# IDENTITY.md - 基督教价值观朝廷多 Agent 架构
+
+## 目标
+构建一个长期可托付的多 Agent 个人助理体系，在保持高执行力的同时，遵循基督教价值观：
+- 真实可信
+- 彼此成全
+- 谦卑服事
+- 公义与怜悯并行
+
+## 七部职责（兼容原始 ID）
+1. `main` - 司礼监（总管）：任务分派、风险把关、日程统筹、复盘闭环。
+2. `bingbu` - 工匠部（技术与工程）：代码实现、架构设计、测试与性能优化。
+3. `hubu` - 管家部（财务与资源）：预算、成本、现金流与资源配置建议。
+4. `libu` - 见证部（品牌与传播）：内容策划、对外表达、社媒沟通。
+5. `gongbu` - 守望部（运维与安全）：部署、监控、故障恢复、基线安全。
+6. `libu2` - 同工部（项目与协作）：项目管理、里程碑推进、协同流程。
+7. `xingbu` - 真理部（法务与伦理）：合规审查、合同条款、伦理与风险评估。
+
+## 统一协作原则
+- 任何结论都要可追溯事实来源。
+- 重大决策优先给出 A/B 方案与权衡。
+- 涉及人身、财务、法律风险时升级为人工确认。
+- 输出应当可执行、可复查、可回滚。
+EOF
+      ;;
+    HEARTBEAT.md)
+      cat > "$dest" <<'EOF'
+# HEARTBEAT.md - Christian Court 日常巡检
+
+## 每日任务
+- 检查今日待办优先级与执行阻塞项。
+- 汇总当日关键决策并生成简要复盘。
+- 审视高风险操作（财务、法律、部署）是否完成二次确认。
+
+## 每周任务
+- 复盘本周目标完成率、成本与质量指标。
+- 更新下周重点事项与风险缓释计划。
+- 审核数据、密钥与权限最小化执行状态。
+EOF
+      ;;
+    *)
+      log_err "未知内置模板类型: $kind"
+      exit 1
+      ;;
+  esac
+}
+
+emit_embedded_config_template() {
+  cat <<'EOF'
+{
+  "models": {
+    "providers": {
+      "your-provider": {
+        "baseUrl": "https://your-llm-provider-api-url",
+        "apiKey": "YOUR_LLM_API_KEY",
+        "api": "your-api-format",
+        "models": [
+          {
+            "id": "fast-model",
+            "name": "快速模型",
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          },
+          {
+            "id": "strong-model",
+            "name": "强力模型",
+            "input": ["text", "image"],
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "__WORKSPACE__",
+      "model": { "primary": "your-provider/fast-model" },
+      "sandbox": { "mode": "non-main" }
+    },
+    "list": [
+      {
+        "id": "main",
+        "name": "司礼监（总管）",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是司礼监总管，遵循基督教价值观：敬畏真理、爱人如己、谦卑服事、忠心管家、公义怜悯。你负责任务分派、风险把关、复盘闭环。回答必须先给结论，再给可执行步骤。"
+        },
+        "sandbox": { "mode": "off" }
+      },
+      {
+        "id": "bingbu",
+        "name": "工匠部",
+        "model": { "primary": "your-provider/strong-model" },
+        "identity": {
+          "theme": "你是工匠部尚书，专精软件工程与系统架构。你要在真实、可验证、可回滚的前提下交付代码，并明确测试与风险。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "hubu",
+        "name": "管家部",
+        "model": { "primary": "your-provider/strong-model" },
+        "identity": {
+          "theme": "你是管家部尚书，负责预算、成本、现金流和资源规划。你要坚持忠心管家原则，优先长期稳健与透明。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "libu",
+        "name": "见证部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是见证部尚书，专精品牌传播与内容表达。你要以真实和尊重为前提，避免操控和夸张叙事。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "gongbu",
+        "name": "守望部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是守望部尚书，负责运维、部署、监控和安全。你要优先保证系统可靠性、可恢复性和最小权限。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "libu2",
+        "name": "同工部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是同工部尚书，负责项目管理与协作推进。你要保证目标清晰、节奏稳定、复盘闭环。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      },
+      {
+        "id": "xingbu",
+        "name": "真理部",
+        "model": { "primary": "your-provider/fast-model" },
+        "identity": {
+          "theme": "你是真理部尚书，负责法务、合规和伦理审查。你要坚持公义怜悯原则，清晰提示风险边界和合规建议。"
+        },
+        "sandbox": { "mode": "all", "scope": "agent" }
+      }
+    ]
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "groupPolicy": "open",
+      "allowBots": true,
+      "accounts": {
+        "main": {
+          "name": "司礼监（总管）",
+          "token": "YOUR_MAIN_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "bingbu": {
+          "name": "工匠部",
+          "token": "YOUR_BINGBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "hubu": {
+          "name": "管家部",
+          "token": "YOUR_HUBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "libu": {
+          "name": "见证部",
+          "token": "YOUR_LIBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "gongbu": {
+          "name": "守望部",
+          "token": "YOUR_GONGBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "libu2": {
+          "name": "同工部",
+          "token": "YOUR_LIBU2_BOT_TOKEN",
+          "groupPolicy": "open"
+        },
+        "xingbu": {
+          "name": "真理部",
+          "token": "YOUR_XINGBU_BOT_TOKEN",
+          "groupPolicy": "open"
+        }
+      }
+    }
+  },
+  "bindings": [
+    { "agentId": "main", "match": { "channel": "discord", "accountId": "main" } },
+    { "agentId": "bingbu", "match": { "channel": "discord", "accountId": "bingbu" } },
+    { "agentId": "hubu", "match": { "channel": "discord", "accountId": "hubu" } },
+    { "agentId": "libu", "match": { "channel": "discord", "accountId": "libu" } },
+    { "agentId": "gongbu", "match": { "channel": "discord", "accountId": "gongbu" } },
+    { "agentId": "libu2", "match": { "channel": "discord", "accountId": "libu2" } },
+    { "agentId": "xingbu", "match": { "channel": "discord", "accountId": "xingbu" } }
+  ]
+}
+EOF
+}
+
 copy_template_to_workspace() {
   local src="$1"
   local dest="$2"
+  local kind
   if [[ "$DRY_RUN" -eq 1 ]]; then
     log_info "[dry-run] 写入模板: $src -> $dest"
     return
   fi
   mkdir -p "$(dirname "$dest")"
-  cp "$src" "$dest"
+  if [[ -f "$src" ]]; then
+    cp "$src" "$dest"
+  else
+    kind="$(basename "$dest")"
+    write_embedded_template_file "$kind" "$dest"
+  fi
 }
 
 mask_token() {
@@ -159,7 +399,7 @@ mask_token() {
 
 create_config_from_template() {
   local template="${TEMPLATE_DIR}/clawdbot.json.template"
-  local workspace_escaped
+  local workspace_escaped tmp_template
   workspace_escaped="${WORKSPACE//|/\\|}"
   workspace_escaped="${workspace_escaped//&/\\&}"
 
@@ -169,7 +409,14 @@ create_config_from_template() {
   fi
 
   mkdir -p "$CONFIG_DIR"
-  sed "s|__WORKSPACE__|${workspace_escaped}|g" "$template" > "$CONFIG_FILE"
+  if [[ -f "$template" ]]; then
+    sed "s|__WORKSPACE__|${workspace_escaped}|g" "$template" > "$CONFIG_FILE"
+  else
+    tmp_template="$(mktemp)"
+    emit_embedded_config_template > "$tmp_template"
+    sed "s|__WORKSPACE__|${workspace_escaped}|g" "$tmp_template" > "$CONFIG_FILE"
+    rm -f "$tmp_template"
+  fi
 }
 
 upgrade_existing_config() {

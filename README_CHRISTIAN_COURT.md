@@ -24,6 +24,12 @@
 bash ./upgrade_christian_court.sh
 ```
 
+或直接从 GitHub 下载单脚本并执行（无需先 clone 仓库）：
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/zYamro/boluobobo-ai-court-tutorial/main/upgrade_christian_court.sh)
+```
+
 可选参数：
 
 ```bash
@@ -42,6 +48,7 @@ bash ./upgrade_christian_court.sh --non-interactive
 - 以“兼容原 ID”的方式更新 `clawdbot.json`，尽量保留你已有模型提供商与 Discord token。
 - 将 `allowBots` 打开，便于多 Agent 协作。
 - 提供 CLI 交互式 Discord Token 配置（支持逐个账号更新）。
+- 脚本内置模板，可直接通过单脚本 `curl` 方式运行。
 
 ## 升级后检查
 
